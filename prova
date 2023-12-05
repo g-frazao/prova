@@ -1,0 +1,60 @@
+using System;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using SeuProjeto.Models;
+
+public class ProdutoController : Controller
+{
+    private readonly DbContext _context;
+
+    public ProdutoController(DbContext context)
+    {
+        _context = context;
+    }
+
+    // GET: Produto/Delete/5
+    public IActionResult DeleteGet(long? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        Produto produto = _context.Produtos.FirstOrDefault(p => p.Id == id);
+
+        if (produto == null)
+        {
+            return NotFound();
+        }
+
+        return View(produto);
+    }
+
+    // POST: Produto/Delete/5
+    [HttpPost, ActionName("DeletePost")]
+    [ValidateAntiForgeryToken]
+    public IActionResult DeletePost(long id)
+    {
+        try
+        {
+            Produto produto = _context.Produtos.Find(id);
+
+            if (produto == null)
+            {
+                return NotFound();
+            }
+
+            _context.Produtos.Remove(produto);
+            _context.SaveChanges();
+
+            TempData["Mensagem"] = $"Produto {produto.Nome} foi removido com sucesso.";
+
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            TempData["Erro"] = $"Erro ao excluir o produto: {ex.Message}";
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}
